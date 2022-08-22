@@ -3,6 +3,7 @@ package me.saechimdaeki.concurrency.service
 import me.saechimdaeki.concurrency.repository.StockRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 
 @Service
@@ -10,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 class StockService(
     private val stockRepository: StockRepository,
 ) {
-    @Transactional
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun decrease(id: Long, quantity: Long) {
         // get stock
         // 재고 감소
