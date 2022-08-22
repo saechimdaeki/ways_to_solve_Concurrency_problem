@@ -18,6 +18,7 @@ import java.util.concurrent.Executors
 internal class StockServiceTest @Autowired constructor(
     private val stockService: StockService,
     private val stockRepository: StockRepository,
+    private val pessimisticStockService: PessimisticStockService,
 ) {
     @BeforeEach
     fun before() {
@@ -40,7 +41,7 @@ internal class StockServiceTest @Autowired constructor(
 
 
     @Test
-    fun `동시에 100개의 요청`(){
+    fun `동시에 100개의 요청 by synchronized`(){
         val threadCnt = 100
         val executorService = Executors.newFixedThreadPool(32)
         val latch = CountDownLatch(threadCnt)
@@ -48,7 +49,7 @@ internal class StockServiceTest @Autowired constructor(
         for(i in 0 until threadCnt) {
             executorService.execute{
                 try{
-                    stockService.decrease(1L,1L)
+                    stockService.decreaseSync(1L,1L)
                 }finally {
                     latch.countDown()
                 }
@@ -57,7 +58,28 @@ internal class StockServiceTest @Autowired constructor(
         latch.await()
         val stock = stockRepository.findByIdOrNull(1L) ?: throw RuntimeException()
 
-        assertThat(0L).isEqualTo(stock.quantity)
+        assertThat(stock.quantity).isEqualTo(0L)
+    }
+
+    @Test
+    fun `동시에 100개의 요청 by pessimisticLock`(){
+        val threadCnt = 100
+        val executorService = Executors.newFixedThreadPool(32)
+        val latch = CountDownLatch(threadCnt)
+
+        for(i in 0 until threadCnt) {
+            executorService.execute{
+                try{
+                    pessimisticStockService.decreaseByPessmimiticLock(1L,1L)
+                }finally {
+                    latch.countDown()
+                }
+            }
+        }
+        latch.await()
+        val stock = stockRepository.findByIdOrNull(1L) ?: throw RuntimeException()
+
+        assertThat(stock.quantity).isEqualTo(0L)
     }
 
 }
