@@ -2,10 +2,8 @@ package me.saechimdaeki.concurrency.service
 
 import me.saechimdaeki.concurrency.domain.Stock
 import me.saechimdaeki.concurrency.repository.StockRepository
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,7 +68,7 @@ internal class StockServiceTest @Autowired constructor(
         for(i in 0 until threadCnt) {
             executorService.execute{
                 try{
-                    pessimisticStockService.decreaseByPessmimiticLock(1L,1L)
+                    pessimisticStockService.decreaseByPessimisticLock(1L,1L)
                 }finally {
                     latch.countDown()
                 }

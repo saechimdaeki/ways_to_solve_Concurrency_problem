@@ -6,16 +6,16 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
-class PessimisticStockService(
+class OptimisticStockService(
     private val stockRepository: StockRepository,
 ) {
 
     @Transactional
-    fun decreaseByPessimisticLock(id:Long, quantity:Long) {
+    fun decreaseByOptimisticLock(id:Long, quantity:Long) {
         // get stock
         // 재고 감소
         // 저장
-        val stock = stockRepository.findByIdWithPessimisticLock(id)?: kotlin.run {
+        val stock = stockRepository.findByIdWithOptimisticLock(id)?: kotlin.run {
             throw RuntimeException()
         }
 
